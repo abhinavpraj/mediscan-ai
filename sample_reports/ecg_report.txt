@@ -1,0 +1,6 @@
+Patient: Ravi Kumar
+Age: 54
+Gender: Male
+ECG Report
+Sinus rhythm observed.
+Blood Pressure: 128/82

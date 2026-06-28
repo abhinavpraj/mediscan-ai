@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mediscan-ai"
+version = "1.0.0"
+description = "Offline-first CPU medical document structuring"
+requires-python = ">=3.11"
+license = { text = "AGPL-3.0-only" }
+
+[tool.setuptools.package-dir]
+"" = "backend"
+
+[tool.setuptools.packages.find]
+where = ["backend"]
+
+[tool.black]
+line-length = 120
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 120
+known_first_party = ["app"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+mypy_path = "backend"
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+addopts = "--cov=backend/app --cov-report=term-missing --cov-report=xml"
+
+[tool.coverage.run]
+branch = true
+source = ["backend/app"]
+
+[tool.coverage.report]
+fail_under = 70

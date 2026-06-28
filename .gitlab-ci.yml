@@ -1,0 +1,119 @@
+stages:
+  - validate
+  - test
+  - security
+  - build
+  - package
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PYTHONPATH: "$CI_PROJECT_DIR/backend"
+
+cache:
+  paths:
+    - .cache/pip
+    - frontend/node_modules/
+
+python-format-lint-type:
+  image: python:3.11
+  stage: validate
+  before_script:
+    - pip install -r backend/requirements.txt
+  script:
+    - black --check backend
+    - isort --check-only backend
+    - ruff check backend
+    - mypy backend/app
+
+frontend-lint-type:
+  image: node:22
+  stage: validate
+  before_script:
+    - cd frontend
+    - npm ci
+  script:
+    - npm run lint
+    - npm run typecheck
+    - npm run format
+
+docs-validation:
+  image: node:22
+  stage: validate
+  before_script:
+    - npm install -g markdownlint-cli yamllint
+    - apt-get update && apt-get install -y python3-yaml
+  script:
+    - markdownlint README.md docs/*.md CONTRIBUTING.md CHANGELOG.md CODE_OF_CONDUCT.md SECURITY.md
+    - yamllint .
+
+backend-tests:
+  image: python:3.11
+  stage: test
+  before_script:
+    - apt-get update && apt-get install -y tesseract-ocr libgl1 libglib2.0-0
+    - pip install -r backend/requirements.txt
+  script:
+    - pytest backend/tests --cov=backend/app --cov-report=xml --cov-report=term
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+    paths:
+      - coverage.xml
+
+frontend-tests:
+  image: node:22
+  stage: test
+  before_script:
+    - cd frontend
+    - npm ci
+  script:
+    - npm run test
+    - npm run build
+
+dependency-audit:
+  image: python:3.11
+  stage: security
+  before_script:
+    - pip install pip-audit
+  script:
+    - pip-audit -r backend/requirements.txt
+    - cd frontend && npm audit --audit-level=high
+
+security-scan:
+  image: python:3.11
+  stage: security
+  before_script:
+    - pip install bandit detect-secrets
+  script:
+    - bandit -r backend/app
+    - detect-secrets scan --all-files
+
+python-build:
+  image: python:3.11
+  stage: build
+  before_script:
+    - pip install build
+  script:
+    - python -m build
+  artifacts:
+    paths:
+      - dist/
+
+docker-build:
+  image: docker:27
+  stage: build
+  services:
+    - docker:27-dind
+  script:
+    - docker build -t mediscan-ai:$CI_COMMIT_SHA .
+
+artifact-generation:
+  image: alpine:3.20
+  stage: package
+  script:
+    - tar -czf mediscan-ai-source.tar.gz README.md backend frontend docs sample_reports sample_outputs Dockerfile docker-compose.yml
+  artifacts:
+    paths:
+      - mediscan-ai-source.tar.gz
