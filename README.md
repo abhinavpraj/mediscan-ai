@@ -121,11 +121,12 @@ Offline Search Dashboard
 | Component | Technology |
 |------------|------------|
 | Frontend | React + TypeScript + Vite |
-| Backend | FastAPI |
+| Backend | FastAPI(Python) |
+| Database | SQLite |
 | OCR | Tesseract OCR |
 | AI Runtime | llama.cpp |
-| Language Model | Phi-3 Mini GGUF / Qwen2.5 GGUF |
-| Database | SQLite |
+| Language Model | Qwen2.5-3B-Instruct GGUF |
+| AI Inference Runtime | llama.cpp (CPU-only) |
 | PDF Processing | PyMuPDF |
 | Image Processing | OpenCV |
 | Containerization | Docker |
@@ -226,7 +227,7 @@ Converts unstructured medical documents into structured JSON.
 ## Clone Repository
 
 ```bash
-git clone https://gitlab.com/your-team/mediscan-ai.git
+git clone https://code.swecha.org/venika_2537/mediscan-ai
 
 cd mediscan-ai
 ```
@@ -288,10 +289,9 @@ This project is licensed under the **GNU Affero General Public License v3.0 (AGP
 
 | Name | Role |
 |------|------|
-| Your Name | Team Lead |
-| Member 2 | Backend Developer |
-| Member 3 | Frontend Developer |
-| Member 4 | AI/ML Engineer |
+| Venika Popuri | Member |
+| Abhinav Prajapati | Member |
+
 
 ---
 
