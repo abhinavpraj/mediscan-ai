@@ -1,93 +1,300 @@
-# MediScan AI
+# 🏥 MediScan AI
 
+> **Offline-First, CPU-Optimized AI for Medical Report Structuring**
 
+![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.11+-green.svg)
+![React](https://img.shields.io/badge/React-19-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-Latest-success.svg)
+![SQLite](https://img.shields.io/badge/Database-SQLite-lightgrey.svg)
+![Offline](https://img.shields.io/badge/Works-Offline-brightgreen.svg)
+![CPU](https://img.shields.io/badge/CPU-Optimized-orange.svg)
 
-## Getting started
+---
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+# 📖 Overview
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+MediScan AI is an **offline-first medical document intelligence system** that converts unstructured medical reports into structured healthcare records using **CPU-optimized AI models**.
 
-## Add your files
+The application processes **blood reports, prescriptions, and ECG reports** entirely on the user's device without requiring an internet connection or cloud-based APIs.
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+Designed for **rural hospitals, clinics, diagnostic centers, and medical camps**, MediScan AI enables healthcare professionals to digitize patient records while preserving privacy and ensuring reliable offline operation.
+
+---
+
+# ❗ Problem Statement
+
+Medical reports are often shared as scanned PDFs or images.
+
+Healthcare professionals spend valuable time manually reading reports and entering patient data into digital systems.
+
+Most AI-powered medical document solutions require cloud services, making them unsuitable for locations with unreliable internet connectivity.
+
+There is a need for an offline AI solution capable of automatically extracting structured medical information while maintaining complete patient privacy.
+
+---
+
+# 💡 Solution
+
+MediScan AI uses:
+
+- **Tesseract OCR** for text extraction
+- **CPU-optimized Small Language Models (SLMs)** running locally via **llama.cpp**
+- **SQLite** for local storage
+
+The application converts medical reports into structured JSON that can be searched, analyzed, and stored locally.
+
+No internet connection is required.
+
+---
+
+# ✨ Features
+
+- 📄 Upload Blood Reports
+- 💊 Upload Prescriptions
+- ❤️ Upload ECG Reports
+- 🔍 Offline OCR Processing
+- 🤖 Local AI Medical Information Extraction
+- 📊 Automatic JSON Generation
+- 💾 SQLite Local Database
+- 🔎 Search Patient Records
+- 🔒 Privacy-First Design
+- ⚡ CPU-Only Inference
+- 🌐 Fully Offline Operation
+
+---
+
+# 🧠 AI Workflow
 
 ```
-cd existing_repo
-git remote add origin https://code.swecha.org/venika_2537/mediscan-ai.git
-git branch -M main
-git push -uf origin main
+Medical Report
+(Image / PDF)
+
+        │
+
+        ▼
+
+Tesseract OCR
+
+        │
+
+        ▼
+
+Text Cleaning & Normalization
+
+        │
+
+        ▼
+
+Local Small Language Model
+(Phi-3 Mini / Qwen2.5)
+
+        │
+
+        ▼
+
+Medical Entity Extraction
+
+        │
+
+        ▼
+
+Structured JSON
+
+        │
+
+        ▼
+
+SQLite Database
+
+        │
+
+        ▼
+
+Offline Search Dashboard
 ```
 
-## Integrate with your tools
+---
 
-* [Set up project integrations](https://code.swecha.org/venika_2537/mediscan-ai/-/settings/integrations)
+# 🏗️ Tech Stack
 
-## Collaborate with your team
+| Component | Technology |
+|------------|------------|
+| Frontend | React + TypeScript + Vite |
+| Backend | FastAPI |
+| OCR | Tesseract OCR |
+| AI Runtime | llama.cpp |
+| Language Model | Phi-3 Mini GGUF / Qwen2.5 GGUF |
+| Database | SQLite |
+| PDF Processing | PyMuPDF |
+| Image Processing | OpenCV |
+| Containerization | Docker |
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+---
 
-## Test and Deploy
+# 📁 Project Structure
 
-Use the built-in continuous integration in GitLab.
+```
+mediscan-ai/
+│
+├── backend/
+│   ├── app/
+│   ├── database/
+│   ├── models/
+│   ├── services/
+│   └── main.py
+│
+├── frontend/
+│   ├── src/
+│   ├── pages/
+│   ├── components/
+│   └── assets/
+│
+├── docs/
+├── models/
+├── sample_reports/
+│
+├── README.md
+├── LICENSE
+├── CONTRIBUTING.md
+├── CHANGELOG.md
+└── .gitlab-ci.yml
+```
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+---
 
-***
+# 📊 Example Output
 
-# Editing this README
+```json
+{
+  "patient_name": "John Doe",
+  "age": 45,
+  "gender": "Male",
+  "report_type": "Blood Report",
+  "hemoglobin": {
+    "value": 11.2,
+    "unit": "g/dL",
+    "status": "Low"
+  },
+  "glucose": {
+    "value": 105,
+    "status": "Normal"
+  },
+  "cholesterol": {
+    "ldl": 165,
+    "hdl": 36,
+    "status": "High"
+  },
+  "blood_pressure": "140/90",
+  "risk_flags": [
+    "Possible Anemia",
+    "High Cholesterol"
+  ],
+  "recommendation": "Consult a physician for further evaluation."
+}
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+---
 
-## Suggestions for a good README
+# 🎯 Hackathon Requirements
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+✅ CPU-First AI
 
-## Name
-Choose a self-explaining name for your project.
+- Runs entirely on CPU
+- No GPU or CUDA required
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+✅ Offline-First
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+- No internet connection required
+- No cloud inference
+- No external AI APIs
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+✅ Local AI Processing
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+- OCR runs locally
+- AI inference runs locally
+- Patient data never leaves the device
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+✅ Structured Data Extraction
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Converts unstructured medical documents into structured JSON.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+---
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+# 🚀 Getting Started
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## Clone Repository
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+```bash
+git clone https://gitlab.com/your-team/mediscan-ai.git
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+cd mediscan-ai
+```
 
-## License
-For open source projects, say how it is licensed.
+---
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Backend
+
+```bash
+cd backend
+
+pip install -r requirements.txt
+
+uvicorn app.main:app --reload
+```
+
+---
+
+## Frontend
+
+```bash
+cd frontend
+
+npm install
+
+npm run dev
+```
+
+---
+
+# 🔮 Future Scope
+
+- Multi-language OCR
+- Patient Health Timeline
+- Trend Analysis for Medical Values
+- Local Semantic Search
+- Voice Summary of Reports
+- FHIR-Compatible Export
+- Hospital Dashboard
+- Medical Analytics
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome.
+
+Please read **CONTRIBUTING.md** before submitting pull requests.
+
+---
+
+# 📜 License
+
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
+
+---
+
+# 👥 Team
+
+| Name | Role |
+|------|------|
+| Your Name | Team Lead |
+| Member 2 | Backend Developer |
+| Member 3 | Frontend Developer |
+| Member 4 | AI/ML Engineer |
+
+---
+
+## ⭐ Built for the CPU-First Hackathon
+
+**"Making Medical AI Accessible Anywhere — Even Without the Internet."**
