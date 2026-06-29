@@ -1,0 +1,7 @@
+Patient: John Doe
+Age: 45
+Gender: Male
+Hemoglobin: 11.2 g/dL
+Glucose: 132 mg/dL
+Cholesterol: 230 mg/dL
+Blood Pressure: 140/90

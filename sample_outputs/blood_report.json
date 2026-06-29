@@ -1,0 +1,18 @@
+{
+  "patient_name": "John Doe",
+  "age": 45,
+  "gender": "Male",
+  "report_type": "Blood Report",
+  "hemoglobin": 11.2,
+  "glucose": 132.0,
+  "cholesterol": "High",
+  "blood_pressure": "140/90",
+  "medications": [],
+  "risk_flags": [
+    "Possible Anemia",
+    "High Glucose",
+    "High Cholesterol",
+    "Elevated Blood Pressure"
+  ],
+  "recommendation": "Consult physician"
+}
