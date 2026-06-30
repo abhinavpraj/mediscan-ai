@@ -40,8 +40,8 @@ docs-validation:
   image: node:22
   stage: validate
   before_script:
-    - npm install -g markdownlint-cli yamllint
-    - apt-get update && apt-get install -y python3-yaml
+    - npm install -g markdownlint-cli
+    - python3 -m pip install yamllint
   script:
     - markdownlint README.md docs/*.md CONTRIBUTING.md CHANGELOG.md CODE_OF_CONDUCT.md SECURITY.md
     - yamllint .
