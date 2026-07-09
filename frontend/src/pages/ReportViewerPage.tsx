@@ -44,15 +44,22 @@ export default function ReportViewerPage({ selected, setPage }: PageProps) {
   const risks = selected.structured_json.risk_flags;
 
   const getParamStatus = (name: string) => {
-    const params = selected.structured_json.parameters || selected.parameters || [];
-    const param = params.find((p: Parameter) => p.name.toLowerCase() === name.toLowerCase());
+    const params =
+      selected.structured_json.parameters || selected.parameters || [];
+    const param = params.find(
+      (p: Parameter) => p.name.toLowerCase() === name.toLowerCase(),
+    );
     return param ? param.status : "Normal";
   };
 
-  const overallRisk = selected.overall_risk || selected.structured_json.overall_risk || "Low";
-  const clinicalSummary = selected.clinical_summary || selected.structured_json.clinical_summary || [];
-  const recommendations = selected.recommendations || selected.structured_json.recommendations || [];
-
+  const overallRisk =
+    selected.overall_risk || selected.structured_json.overall_risk || "Low";
+  const clinicalSummary =
+    selected.clinical_summary ||
+    selected.structured_json.clinical_summary ||
+    [];
+  const recommendations =
+    selected.recommendations || selected.structured_json.recommendations || [];
 
   return (
     <div className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
@@ -61,11 +68,17 @@ export default function ReportViewerPage({ selected, setPage }: PageProps) {
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <CardTitle>Clinical Summary</CardTitle>
-              <Badge tone={
-                overallRisk === "Critical" ? "red" :
-                overallRisk === "High" ? "red" :
-                overallRisk === "Moderate" ? "amber" : "green"
-              }>
+              <Badge
+                tone={
+                  overallRisk === "Critical"
+                    ? "red"
+                    : overallRisk === "High"
+                      ? "red"
+                      : overallRisk === "Moderate"
+                        ? "amber"
+                        : "green"
+                }
+              >
                 {overallRisk} Risk
               </Badge>
             </div>
@@ -85,7 +98,7 @@ export default function ReportViewerPage({ selected, setPage }: PageProps) {
                 )}
               </ul>
             </div>
-            
+
             {recommendations.length > 0 && (
               <div>
                 <h3 className="mb-2 text-sm font-semibold text-slate-900 dark:text-white">
@@ -100,7 +113,8 @@ export default function ReportViewerPage({ selected, setPage }: PageProps) {
             )}
 
             <p className="text-xs italic text-slate-400 dark:text-slate-500 mt-4 pt-4 border-t border-slate-100 dark:border-white/10">
-              This is an AI-generated clinical summary and should not replace professional medical advice.
+              This is an AI-generated clinical summary and should not replace
+              professional medical advice.
             </p>
           </CardContent>
         </Card>
@@ -109,7 +123,15 @@ export default function ReportViewerPage({ selected, setPage }: PageProps) {
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <CardTitle>Patient Summary</CardTitle>
-              <Badge tone={overallRisk === "Critical" || overallRisk === "High" ? "red" : overallRisk === "Moderate" ? "amber" : "green"}>
+              <Badge
+                tone={
+                  overallRisk === "Critical" || overallRisk === "High"
+                    ? "red"
+                    : overallRisk === "Moderate"
+                      ? "amber"
+                      : "green"
+                }
+              >
                 {overallRisk || (risks.length ? "Needs review" : "Normal")}
               </Badge>
             </div>
@@ -258,14 +280,27 @@ function SummaryRow({
   );
 }
 
-function Metric({ label, value, status }: { label: string; value: string | number; status?: string }) {
+function Metric({
+  label,
+  value,
+  status,
+}: {
+  label: string;
+  value: string | number;
+  status?: string;
+}) {
   const getIndicator = (status: string) => {
     switch (status) {
-      case "Normal": return "🟢";
-      case "Low": return "🟡";
-      case "High": return "🟠";
-      case "Critical": return "🔴";
-      default: return "🟢";
+      case "Normal":
+        return "🟢";
+      case "Low":
+        return "🟡";
+      case "High":
+        return "🟠";
+      case "Critical":
+        return "🔴";
+      default:
+        return "🟢";
     }
   };
 

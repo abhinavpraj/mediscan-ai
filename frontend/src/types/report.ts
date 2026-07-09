@@ -44,5 +44,3 @@ export type Report = {
   abnormal_parameters?: Parameter[];
   processed_at?: string | null;
 };
-
-

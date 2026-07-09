@@ -38,22 +38,26 @@ export default function DashboardPage({
   setPage,
 }: PageProps) {
   const highRisk = reports.filter(
-    (report) => (report.overall_risk || report.structured_json.overall_risk) === "High"
+    (report) =>
+      (report.overall_risk || report.structured_json.overall_risk) === "High",
   );
   const critical = reports.filter(
-    (report) => (report.overall_risk || report.structured_json.overall_risk) === "Critical"
+    (report) =>
+      (report.overall_risk || report.structured_json.overall_risk) ===
+      "Critical",
   );
   const patients = new Set(reports.map((report) => report.patient_name)).size;
   const chartData = buildChartData(reports.length);
-  const riskData = ["Low", "Moderate", "High", "Critical"].map(
-    (name) => ({
-      name,
-      value:
-        reports.filter(
-          (report) => (report.overall_risk || report.structured_json.overall_risk || "Low") === name
-        ).length || (reports.length ? 0 : 1),
-    }),
-  );
+  const riskData = ["Low", "Moderate", "High", "Critical"].map((name) => ({
+    name,
+    value:
+      reports.filter(
+        (report) =>
+          (report.overall_risk ||
+            report.structured_json.overall_risk ||
+            "Low") === name,
+      ).length || (reports.length ? 0 : 1),
+  }));
 
   return (
     <div className="space-y-6">
@@ -148,7 +152,9 @@ export default function DashboardPage({
                     {riskData.map((entry, index) => (
                       <Cell
                         key={entry.name}
-                        fill={["#10B981", "#F59E0B", "#EF4444", "#B91C1C"][index]}
+                        fill={
+                          ["#10B981", "#F59E0B", "#EF4444", "#B91C1C"][index]
+                        }
                       />
                     ))}
                   </Pie>
@@ -231,16 +237,25 @@ export default function DashboardPage({
                       <td className="px-5 py-4">
                         <Badge
                           tone={
-                            (report.overall_risk || report.structured_json.overall_risk) === "Critical"
+                            (report.overall_risk ||
+                              report.structured_json.overall_risk) ===
+                            "Critical"
                               ? "red"
-                              : (report.overall_risk || report.structured_json.overall_risk) === "High"
-                              ? "red"
-                              : (report.overall_risk || report.structured_json.overall_risk) === "Moderate"
-                              ? "amber"
-                              : "green"
+                              : (report.overall_risk ||
+                                    report.structured_json.overall_risk) ===
+                                  "High"
+                                ? "red"
+                                : (report.overall_risk ||
+                                      report.structured_json.overall_risk) ===
+                                    "Moderate"
+                                  ? "amber"
+                                  : "green"
                           }
                         >
-                          {(report.overall_risk || report.structured_json.overall_risk || "Low")} Risk
+                          {report.overall_risk ||
+                            report.structured_json.overall_risk ||
+                            "Low"}{" "}
+                          Risk
                         </Badge>
                       </td>
                       <td className="px-5 py-4 text-slate-500">
