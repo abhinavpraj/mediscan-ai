@@ -9,25 +9,33 @@ variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PYTHONPATH: "$CI_PROJECT_DIR/backend"
 
-cache:
-  paths:
-    - .cache/pip
-    - frontend/node_modules/
-
-# ----------------- TEST STAGE -----------------
-
-test:
-  stage: test
-  image: python:3.11
+default:
+  image: nikolaik/python-nodejs:python3.11-nodejs22
+  tags:
+    - python
+    - docker
+    - linux
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - .cache/pip
+      - .venv/
+      - frontend/node_modules/
   before_script:
-    - python3 -m venv backend/.venv
-    - source backend/.venv/bin/activate
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip install --upgrade pip
     - pip install -r backend/requirements.txt
     - cd frontend
     - npm ci
     - cd ..
+
+# ----------------- JOBS -----------------
+
+test:
+  stage: test
   script:
-    - source backend/.venv/bin/activate
+    - source .venv/bin/activate
     - pytest
     - cd frontend
     - |
@@ -37,72 +45,35 @@ test:
         echo "No frontend test script found, skipping."
       fi
 
-# ----------------- LINT STAGE -----------------
-
 lint:
   stage: lint
-  image: python:3.11
-  before_script:
-    - python3 -m venv backend/.venv
-    - source backend/.venv/bin/activate
-    - pip install -r backend/requirements.txt
-    - cd frontend
-    - npm ci
-    - cd ..
   script:
-    - source backend/.venv/bin/activate
+    - source .venv/bin/activate
     - ruff check .
     - cd frontend
     - npm run lint
 
-# ----------------- FORMAT STAGE -----------------
-
 format:
   stage: format
-  image: python:3.11
-  before_script:
-    - python3 -m venv backend/.venv
-    - source backend/.venv/bin/activate
-    - pip install -r backend/requirements.txt
-    - cd frontend
-    - npm ci
-    - cd ..
   script:
-    - source backend/.venv/bin/activate
+    - source .venv/bin/activate
     - ruff format --check .
     - cd frontend
     - npm run format:check
 
-# ----------------- TYPE CHECK STAGE -----------------
-
 type_check:
   stage: type_check
-  image: python:3.11
-  before_script:
-    - python3 -m venv backend/.venv
-    - source backend/.venv/bin/activate
-    - pip install -r backend/requirements.txt
-    - cd frontend
-    - npm ci
-    - cd ..
   script:
-    - source backend/.venv/bin/activate
+    - source .venv/bin/activate
     - mypy
     - cd frontend
     - npm run type-check
 
-# ----------------- COVERAGE STAGE -----------------
-
 coverage:
   stage: coverage
-  image: python:3.11
-  before_script:
-    - python3 -m venv backend/.venv
-    - source backend/.venv/bin/activate
-    - pip install -r backend/requirements.txt
   script:
-    - source backend/.venv/bin/activate
-    - pytest --cov=app --cov-report=term --cov-report=xml
+    - source .venv/bin/activate
+    - pytest --cov=app --cov-report=xml
   artifacts:
     name: "coverage-report"
     paths:
