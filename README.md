@@ -34,7 +34,7 @@ Designed for **rural hospitals, clinics, diagnostic centers, and medical camps**
 
 - **📄 Document Upload**: Easily upload blood reports, prescriptions, and ECG images/PDFs.
 - **🔍 Offline OCR**: Extract raw text locally using Tesseract OCR.
-- **🛡️ Clinical Risk Engine**: Automatically evaluate key metrics (Hemoglobin, Glucose, Cholesterol, Blood Pressure) against age/gender-adjusted reference ranges to flag Low, Moderate, High, or Critical statuses.
+- **🛡️ Clinical Risk Engine**: Automatically evaluate key metrics (Hemoglobin, Glucose, Cholesterol, Blood Pressure) against reference ranges to flag Low, Moderate, High, or Critical statuses.
 - **🧠 Clinical Summary Generator**: Generate concise natural-language overviews (max 5 bullet points) and suggested follow-ups (using a local llama.cpp GGUF model if available, otherwise falling back programmatically).
 - **💾 Local SQLite Database**: Save and fetch structured history and patient search queries.
 - **🔒 Privacy-First Design**: Patient records never leave the local machine.
@@ -48,7 +48,7 @@ Designed for **rural hospitals, clinics, diagnostic centers, and medical camps**
 ┌─────────────────┐       ┌───────────────┐       ┌────────────────────────┐
 │ Medical Report  │ ─────>│ Tesseract OCR │ ─────>│   Text Normalization   │
 │  (Image/PDF)    │       └───────────────┘       └────────────────────────┘
-└─────────────────┘                                           │
+                                                              │
                                                               ▼
 ┌─────────────────┐       ┌───────────────┐       ┌────────────────────────┐
 │ SQLite Database │ <─────│  Risk Engine  │ <─────│ Local Small Lang Model │
@@ -129,6 +129,24 @@ Copy `.env.example` in the root folder to configure local environments:
 
 ---
 
+## 🔌 API Endpoints & Health Checks
+
+The backend provides the following service routes:
+
+### System & Health Endpoints
+- **`GET /`**: Welcome and API index metadata.
+- **`GET /health`**: Standard liveness check endpoint returning `{"status": "healthy"}` for container/cloud platforms.
+- **`GET /docs`**: Swagger UI documentation endpoint.
+- **`GET /openapi.json`**: OpenAPI schema file.
+
+### Business & Processing Endpoints
+- **`POST /api/auth/login`**: User session token authorization.
+- **`GET /api/reports`**: List and search structured reports history.
+- **`POST /api/reports/upload`**: Upload and process image/PDF report documents.
+- **`POST /api/reports/text`**: Direct plain-text report ingestion.
+
+---
+
 ## 🚀 Getting Started
 
 ### 1. Clone the Repository
@@ -137,7 +155,7 @@ git clone https://github.com/abhinavpraj/mediscan-ai.git
 cd mediscan-ai
 ```
 
-### 2. Run Locally (Development)
+### 2. Run Locally (Development Setup)
 
 #### Backend Setup
 ```bash
@@ -157,7 +175,7 @@ npm run dev
 ```
 *Open `http://localhost:5173` in your browser.*
 
-### 3. Run with Docker
+### 3. Run with Docker (Docker Setup)
 ```bash
 docker compose up --build
 ```
@@ -168,18 +186,25 @@ docker compose up --build
 
 ## ☁️ Deployment Guide
 
-### Backend: Render (Docker Container Web Service)
+### GitHub Repository Setup
+Ensure your codebase is pushed to your GitHub origin:
+```bash
+git push origin main
+```
+
+### Backend Deployment: Render (Docker Container Web Service)
 Since Tesseract OCR requires system packages, deploying the backend as a Docker Container is recommended.
 1. Sign in to [Render](https://render.com) and create a **New Web Service**.
 2. Connect your GitHub repository.
 3. Choose the **Docker** runtime environment.
 4. Add the following Environment Variables in the Render Dashboard:
+   - `PORT`: (Set automatically by Render, defaults to `10000`)
    - `MEDISCAN_JWT_SECRET`: (Secure random key)
    - `MEDISCAN_CORS_ORIGINS`: `https://your-frontend-vercel-url.vercel.app`
    - `MEDISCAN_ADMIN_PASSWORD`: (Production login password)
 5. Deploy. Render will automatically build the `Dockerfile` and expose the API.
 
-### Frontend: Vercel
+### Frontend Deployment: Vercel
 Vercel is ideal for static React assets.
 1. Sign in to [Vercel](https://vercel.com) and click **Add New Project**.
 2. Import the `mediscan-ai` repository.
@@ -192,12 +217,24 @@ Vercel is ideal for static React assets.
 
 ---
 
-## 🔮 Future Improvements
+## 🔧 Troubleshooting
 
-- [ ] **Multi-Language OCR**: Support OCR parsing for Telugu, Hindi, and regional languages.
-- [ ] **PDF Export**: Generate structured, printable PDF summary cards for patients to carry.
-- [ ] **Interactive Chat**: Let medical practitioners ask questions about report history.
-- [ ] **Offline PWA support**: Install the dashboard as a progressive web app on smartphones.
+### 1. OCR Fails / Tesseract Binary Not Found
+- Ensure `tesseract` is installed on your local OS:
+  - macOS: `brew install tesseract`
+  - Ubuntu/Debian: `sudo apt-get install tesseract-ocr`
+- On Docker, the environment is automatically configured with Tesseract pre-installed.
+
+### 2. Local LLM/GGUF Fails to Load
+- Ensure you have downloaded the Phi-3 Mini GGUF model and placed it in the `models/` directory.
+- Verify the file name matches `Phi-3-mini-4k-instruct-q4.gguf` or update `MEDISCAN_MODEL_PATH` accordingly.
+- If no GGUF model is provided, the backend falls back safely to deterministic regex and rule evaluations.
+
+### 3. Database Write Permissions
+- Ensure the user running the FastAPI app has write permission to the `backend/database/` directory.
+
+### 4. Vercel Deep Link 404 Errors
+- Ensure the `frontend/vercel.json` file is present in the build root to handle SPA client-side route routing redirects.
 
 ---
 

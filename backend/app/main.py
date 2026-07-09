@@ -34,7 +34,7 @@ def create_app() -> FastAPI:
     app.include_router(router, prefix="/api")
 
     @app.get("/", tags=["Health"])
-    async def root():
+    async def root() -> dict[str, str]:
         return {
             "status": "ok",
             "message": "MediScan AI API is running",
@@ -43,7 +43,7 @@ def create_app() -> FastAPI:
         }
 
     @app.get("/health", tags=["Health"])
-    async def health():
+    async def health() -> dict[str, str]:
         return {"status": "healthy"}
 
     return app
