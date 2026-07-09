@@ -17,13 +17,20 @@ class ReportRepository:
         raw_text: str,
         structured_json: dict[str, Any],
         source_filename: str,
+        overall_risk: str | None = None,
+        clinical_summary: list[str] | None = None,
+        recommendations: list[str] | None = None,
+        parameters: list[dict[str, Any]] | None = None,
+        abnormal_parameters: list[dict[str, Any]] | None = None,
+        processed_at: datetime | None = None,
     ) -> Report:
         with get_connection() as connection:
             cursor = connection.execute(
                 """
                 INSERT INTO reports (
-                    patient_name, age, gender, report_type, raw_text, structured_json, source_filename
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    patient_name, age, gender, report_type, raw_text, structured_json, source_filename,
+                    overall_risk, clinical_summary, recommendations, parameters, abnormal_parameters, processed_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     patient_name,
@@ -33,6 +40,12 @@ class ReportRepository:
                     raw_text,
                     json.dumps(structured_json, sort_keys=True),
                     source_filename,
+                    overall_risk,
+                    json.dumps(clinical_summary) if clinical_summary is not None else None,
+                    json.dumps(recommendations) if recommendations is not None else None,
+                    json.dumps(parameters) if parameters is not None else None,
+                    json.dumps(abnormal_parameters) if abnormal_parameters is not None else None,
+                    processed_at.isoformat() if processed_at is not None else None,
                 ),
             )
             row = connection.execute("SELECT * FROM reports WHERE id = ?", (cursor.lastrowid,)).fetchone()
@@ -70,4 +83,10 @@ class ReportRepository:
             structured_json=json.loads(str(row["structured_json"])),
             source_filename=str(row["source_filename"]),
             created_at=datetime.fromisoformat(str(row["created_at"])),
+            overall_risk=row["overall_risk"] if row["overall_risk"] else None,
+            clinical_summary=json.loads(str(row["clinical_summary"])) if row["clinical_summary"] else [],
+            recommendations=json.loads(str(row["recommendations"])) if row["recommendations"] else [],
+            parameters=json.loads(str(row["parameters"])) if row["parameters"] else [],
+            abnormal_parameters=json.loads(str(row["abnormal_parameters"])) if row["abnormal_parameters"] else [],
+            processed_at=datetime.fromisoformat(str(row["processed_at"])) if row["processed_at"] else None,
         )

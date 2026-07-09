@@ -39,6 +39,7 @@ python_version = "3.11"
 strict = true
 ignore_missing_imports = true
 mypy_path = "backend"
+files = ["backend/app"]
 
 [tool.pytest.ini_options]
 testpaths = ["backend/tests"]

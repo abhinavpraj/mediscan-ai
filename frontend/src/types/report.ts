@@ -1,3 +1,13 @@
+export type Parameter = {
+  name: string;
+  value: number | string;
+  unit: string;
+  reference_range: string;
+  status: string;
+  severity: string;
+  risk_reason: string;
+};
+
 export type StructuredReport = {
   patient_name: string;
   age: number | null;
@@ -10,6 +20,11 @@ export type StructuredReport = {
   medications: string[];
   risk_flags: string[];
   recommendation: string;
+  overall_risk?: string | null;
+  clinical_summary?: string[];
+  recommendations?: string[];
+  parameters?: Parameter[];
+  abnormal_parameters?: Parameter[];
 };
 
 export type Report = {
@@ -22,4 +37,10 @@ export type Report = {
   structured_json: StructuredReport;
   source_filename: string;
   created_at: string;
+  overall_risk?: string | null;
+  clinical_summary?: string[];
+  recommendations?: string[];
+  parameters?: Parameter[];
+  abnormal_parameters?: Parameter[];
+  processed_at?: string | null;
 };

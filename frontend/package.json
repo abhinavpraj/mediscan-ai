@@ -7,8 +7,10 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
+    "type-check": "tsc -b",
     "lint": "eslint .",
     "format": "prettier --check .",
+    "format:check": "prettier --check .",
     "test": "vitest run"
   },
   "dependencies": {
@@ -26,6 +28,7 @@
   "devDependencies": {
     "@eslint/js": "latest",
     "@tailwindcss/postcss": "latest",
+    "@tailwindcss/vite": "^4.3.2",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "autoprefixer": "latest",

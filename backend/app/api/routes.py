@@ -46,6 +46,12 @@ def to_response(report: Report) -> ReportResponse:
         structured_json=report.structured_json,
         source_filename=report.source_filename,
         created_at=report.created_at,
+        overall_risk=report.overall_risk,
+        clinical_summary=report.clinical_summary,
+        recommendations=report.recommendations,
+        parameters=report.parameters,
+        abnormal_parameters=report.abnormal_parameters,
+        processed_at=report.processed_at,
     )
 
 

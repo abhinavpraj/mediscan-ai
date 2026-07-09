@@ -1,5 +1,5 @@
-import type { Report } from './report';
-import type { PageKey } from '../components/layout/AppShell';
+import type { Report } from "./report";
+import type { PageKey } from "../components/layout/AppShell";
 
 export type PageProps = {
   reports: Report[];
