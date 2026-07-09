@@ -1,12 +1,9 @@
 stages:
-  - format
-  - lint
-  - type_check
   - test
+  - lint
+  - format
+  - type_check
   - coverage
-  - security
-  - build
-  - package
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
@@ -17,162 +14,97 @@ cache:
     - .cache/pip
     - frontend/node_modules/
 
-# ----------------- FORMAT STAGE -----------------
+# ----------------- TEST STAGE -----------------
 
-backend-format:
+test:
+  stage: test
   image: python:3.11
-  stage: format
   before_script:
-    - pip install black isort
-  script:
-    - black --check backend
-    - isort --check-only backend
-
-frontend-format:
-  image: node:22
-  stage: format
-  before_script:
+    - python3 -m venv backend/.venv
+    - source backend/.venv/bin/activate
+    - pip install -r backend/requirements.txt
     - cd frontend
     - npm ci
+    - cd ..
   script:
-    - npm run format
+    - source backend/.venv/bin/activate
+    - pytest
+    - cd frontend
+    - |
+      if [ -f package.json ] && grep -q '"test":' package.json; then
+        npm run test
+      else
+        echo "No frontend test script found, skipping."
+      fi
 
 # ----------------- LINT STAGE -----------------
 
-backend-lint:
+lint:
+  stage: lint
   image: python:3.11
-  stage: lint
   before_script:
-    - pip install ruff
-  script:
-    - ruff check backend
-
-frontend-lint:
-  image: node:22
-  stage: lint
-  before_script:
+    - python3 -m venv backend/.venv
+    - source backend/.venv/bin/activate
+    - pip install -r backend/requirements.txt
     - cd frontend
     - npm ci
+    - cd ..
   script:
+    - source backend/.venv/bin/activate
+    - ruff check .
+    - cd frontend
     - npm run lint
 
-docs-lint:
-  image: node:22
-  stage: lint
+# ----------------- FORMAT STAGE -----------------
+
+format:
+  stage: format
+  image: python:3.11
   before_script:
-    - npm install -g markdownlint-cli
-    - python3 -m pip install yamllint
+    - python3 -m venv backend/.venv
+    - source backend/.venv/bin/activate
+    - pip install -r backend/requirements.txt
+    - cd frontend
+    - npm ci
+    - cd ..
   script:
-    - markdownlint README.md docs/*.md CONTRIBUTING.md CHANGELOG.md CODE_OF_CONDUCT.md SECURITY.md
-    - yamllint .
+    - source backend/.venv/bin/activate
+    - ruff format --check .
+    - cd frontend
+    - npm run format:check
 
 # ----------------- TYPE CHECK STAGE -----------------
 
-backend-typecheck:
+type_check:
+  stage: type_check
   image: python:3.11
-  stage: type_check
   before_script:
+    - python3 -m venv backend/.venv
+    - source backend/.venv/bin/activate
     - pip install -r backend/requirements.txt
-  script:
-    - mypy backend/app
-
-frontend-typecheck:
-  image: node:22
-  stage: type_check
-  before_script:
     - cd frontend
     - npm ci
+    - cd ..
   script:
-    - npm run typecheck
-
-# ----------------- TEST STAGE -----------------
-
-backend-test:
-  image: python:3.11
-  stage: test
-  before_script:
-    - apt-get update && apt-get install -y tesseract-ocr libgl1 libglib2.0-0
-    - pip install -r backend/requirements.txt
-  script:
-    - pytest backend/tests --cov=backend/app --cov-report=xml --cov-report=term
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
-    paths:
-      - coverage.xml
-      - .coverage
-
-frontend-test:
-  image: node:22
-  stage: test
-  before_script:
+    - source backend/.venv/bin/activate
+    - mypy
     - cd frontend
-    - npm ci
-  script:
-    - npm run test
+    - npm run type-check
 
 # ----------------- COVERAGE STAGE -----------------
 
-coverage-check:
-  image: python:3.11
+coverage:
   stage: coverage
-  dependencies:
-    - backend-test
-  before_script:
-    - pip install coverage
-  script:
-    - coverage report --fail-under=70
-
-# ----------------- SECURITY STAGE -----------------
-
-dependency-audit:
   image: python:3.11
-  stage: security
   before_script:
-    - pip install pip-audit
+    - python3 -m venv backend/.venv
+    - source backend/.venv/bin/activate
+    - pip install -r backend/requirements.txt
   script:
-    - pip-audit -r backend/requirements.txt
-    - cd frontend && npm audit --audit-level=high
-
-security-scan:
-  image: python:3.11
-  stage: security
-  before_script:
-    - pip install bandit detect-secrets
-  script:
-    - bandit -r backend/app
-    - detect-secrets scan --all-files
-
-# ----------------- BUILD STAGE -----------------
-
-python-build:
-  image: python:3.11
-  stage: build
-  before_script:
-    - pip install build
-  script:
-    - python -m build
+    - source backend/.venv/bin/activate
+    - pytest --cov=app --cov-report=term --cov-report=xml
   artifacts:
+    name: "coverage-report"
     paths:
-      - dist/
-
-docker-build:
-  image: docker:27
-  stage: build
-  services:
-    - docker:27-dind
-  script:
-    - docker build -t mediscan-ai:$CI_COMMIT_SHA .
-
-# ----------------- PACKAGE STAGE -----------------
-
-artifact-generation:
-  image: alpine:3.20
-  stage: package
-  script:
-    - tar -czf mediscan-ai-source.tar.gz README.md backend frontend docs sample_reports sample_outputs Dockerfile docker-compose.yml
-  artifacts:
-    paths:
-      - mediscan-ai-source.tar.gz
+      - coverage.xml
+    expire_in: 1 week

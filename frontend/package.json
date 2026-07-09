@@ -7,8 +7,10 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
+    "type-check": "tsc -b",
     "lint": "eslint .",
     "format": "prettier --check .",
+    "format:check": "prettier --check .",
     "test": "vitest run"
   },
   "dependencies": {
