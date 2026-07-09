@@ -22,6 +22,7 @@ def create_app() -> FastAPI:
         version="1.0.0",
         lifespan=lifespan,
     )
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -29,7 +30,21 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
     app.include_router(router, prefix="/api")
+
+    @app.get("/", tags=["Health"])
+    async def root():
+        return {
+            "status": "ok",
+            "message": "MediScan AI API is running",
+            "docs": "/docs",
+            "api": "/api",
+        }
+
+    @app.get("/health", tags=["Health"])
+    async def health():
+        return {"status": "healthy"}
 
     return app
 
