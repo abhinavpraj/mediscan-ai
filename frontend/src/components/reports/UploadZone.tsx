@@ -1,10 +1,16 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import { CheckCircle2, CloudUpload, FileText, Image, Loader2 } from 'lucide-react';
-import { DragEvent, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
-import { Button } from '../ui/button';
-import { Progress } from '../ui/progress';
-import { cn } from '../../lib/utils';
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  CheckCircle2,
+  CloudUpload,
+  FileText,
+  Image,
+  Loader2,
+} from "lucide-react";
+import { DragEvent, useRef, useState } from "react";
+import type { ReactNode } from "react";
+import { Button } from "../ui/button";
+import { Progress } from "../ui/progress";
+import { cn } from "../../lib/utils";
 
 export function UploadZone({
   busy,
@@ -29,42 +35,75 @@ export function UploadZone({
 
   return (
     <div
-      onDragOver={(event) => { event.preventDefault(); setDragging(true); }}
+      onDragOver={(event) => {
+        event.preventDefault();
+        setDragging(true);
+      }}
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
       className={cn(
-        'relative overflow-hidden rounded-3xl border border-dashed p-8 text-center transition-all',
+        "relative overflow-hidden rounded-3xl border border-dashed p-8 text-center transition-all",
         dragging
-          ? 'border-blue-500 bg-blue-50 shadow-xl shadow-blue-600/10 dark:bg-blue-500/10'
-          : 'border-slate-200 bg-white/80 dark:border-white/10 dark:bg-white/5',
+          ? "border-blue-500 bg-blue-50 shadow-xl shadow-blue-600/10 dark:bg-blue-500/10"
+          : "border-slate-200 bg-white/80 dark:border-white/10 dark:bg-white/5",
       )}
     >
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.12),transparent_40%)]" />
-      <motion.div animate={{ y: busy ? [0, -6, 0] : 0 }} transition={{ repeat: busy ? Infinity : 0, duration: 1.4 }} className="mx-auto mb-5 grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br from-blue-600 to-cyan-400 text-white shadow-xl shadow-blue-600/25">
-        {busy ? <Loader2 className="animate-spin" size={34} /> : <CloudUpload size={36} />}
+      <motion.div
+        animate={{ y: busy ? [0, -6, 0] : 0 }}
+        transition={{ repeat: busy ? Infinity : 0, duration: 1.4 }}
+        className="mx-auto mb-5 grid h-20 w-20 place-items-center rounded-3xl bg-gradient-to-br from-blue-600 to-cyan-400 text-white shadow-xl shadow-blue-600/25"
+      >
+        {busy ? (
+          <Loader2 className="animate-spin" size={34} />
+        ) : (
+          <CloudUpload size={36} />
+        )}
       </motion.div>
-      <h2 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-white">Drop medical report here</h2>
+      <h2 className="text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
+        Drop medical report here
+      </h2>
       <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-        Upload a PDF, JPG, or PNG. OCR and extraction run offline on CPU, then the structured result is stored locally.
+        Upload a PDF, JPG, or PNG. OCR and extraction run offline on CPU, then
+        the structured result is stored locally.
       </p>
       <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        <Button size="lg" onClick={() => inputRef.current?.click()} disabled={busy}>
+        <Button
+          size="lg"
+          onClick={() => inputRef.current?.click()}
+          disabled={busy}
+        >
           <CloudUpload size={18} /> Choose file
         </Button>
-        <input ref={inputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(event) => {
-          const file = event.target.files?.[0];
-          if (file) void onFile(file);
-          event.target.value = '';
-        }} />
+        <input
+          ref={inputRef}
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png"
+          className="hidden"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void onFile(file);
+            event.target.value = "";
+          }}
+        />
         <Button variant="outline" size="lg" disabled>
           <CheckCircle2 size={18} /> Offline ready
         </Button>
       </div>
       <AnimatePresence>
         {progress > 0 && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mx-auto mt-6 max-w-md text-left">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="mx-auto mt-6 max-w-md text-left"
+          >
             <div className="mb-2 flex justify-between text-xs font-medium text-slate-500">
-              <span>{progress === 100 ? 'Processing complete' : 'Processing locally'}</span>
+              <span>
+                {progress === 100
+                  ? "Processing complete"
+                  : "Processing locally"}
+              </span>
               <span>{progress}%</span>
             </div>
             <Progress value={progress} />
@@ -73,7 +112,11 @@ export function UploadZone({
       </AnimatePresence>
       {previewUrl && (
         <div className="mx-auto mt-6 max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg dark:border-white/10 dark:bg-slate-900">
-          <img src={previewUrl} alt="Uploaded report preview" className="max-h-60 w-full object-contain" />
+          <img
+            src={previewUrl}
+            alt="Uploaded report preview"
+            className="max-h-60 w-full object-contain"
+          />
         </div>
       )}
       <div className="mt-8 grid gap-3 sm:grid-cols-3">

@@ -1,6 +1,9 @@
 stages:
-  - validate
+  - format
+  - lint
+  - type_check
   - test
+  - coverage
   - security
   - build
   - package
@@ -14,31 +17,48 @@ cache:
     - .cache/pip
     - frontend/node_modules/
 
-python-format-lint-type:
+# ----------------- FORMAT STAGE -----------------
+
+backend-format:
   image: python:3.11
-  stage: validate
+  stage: format
   before_script:
-    - pip install -r backend/requirements.txt
+    - pip install black isort
   script:
     - black --check backend
     - isort --check-only backend
-    - ruff check backend
-    - mypy backend/app
 
-frontend-lint-type:
+frontend-format:
   image: node:22
-  stage: validate
+  stage: format
+  before_script:
+    - cd frontend
+    - npm ci
+  script:
+    - npm run format
+
+# ----------------- LINT STAGE -----------------
+
+backend-lint:
+  image: python:3.11
+  stage: lint
+  before_script:
+    - pip install ruff
+  script:
+    - ruff check backend
+
+frontend-lint:
+  image: node:22
+  stage: lint
   before_script:
     - cd frontend
     - npm ci
   script:
     - npm run lint
-    - npm run typecheck
-    - npm run format
 
-docs-validation:
+docs-lint:
   image: node:22
-  stage: validate
+  stage: lint
   before_script:
     - npm install -g markdownlint-cli
     - python3 -m pip install yamllint
@@ -46,7 +66,28 @@ docs-validation:
     - markdownlint README.md docs/*.md CONTRIBUTING.md CHANGELOG.md CODE_OF_CONDUCT.md SECURITY.md
     - yamllint .
 
-backend-tests:
+# ----------------- TYPE CHECK STAGE -----------------
+
+backend-typecheck:
+  image: python:3.11
+  stage: type_check
+  before_script:
+    - pip install -r backend/requirements.txt
+  script:
+    - mypy backend/app
+
+frontend-typecheck:
+  image: node:22
+  stage: type_check
+  before_script:
+    - cd frontend
+    - npm ci
+  script:
+    - npm run typecheck
+
+# ----------------- TEST STAGE -----------------
+
+backend-test:
   image: python:3.11
   stage: test
   before_script:
@@ -61,8 +102,9 @@ backend-tests:
         path: coverage.xml
     paths:
       - coverage.xml
+      - .coverage
 
-frontend-tests:
+frontend-test:
   image: node:22
   stage: test
   before_script:
@@ -70,7 +112,20 @@ frontend-tests:
     - npm ci
   script:
     - npm run test
-    - npm run build
+
+# ----------------- COVERAGE STAGE -----------------
+
+coverage-check:
+  image: python:3.11
+  stage: coverage
+  dependencies:
+    - backend-test
+  before_script:
+    - pip install coverage
+  script:
+    - coverage report --fail-under=70
+
+# ----------------- SECURITY STAGE -----------------
 
 dependency-audit:
   image: python:3.11
@@ -90,6 +145,8 @@ security-scan:
     - bandit -r backend/app
     - detect-secrets scan --all-files
 
+# ----------------- BUILD STAGE -----------------
+
 python-build:
   image: python:3.11
   stage: build
@@ -108,6 +165,8 @@ docker-build:
     - docker:27-dind
   script:
     - docker build -t mediscan-ai:$CI_COMMIT_SHA .
+
+# ----------------- PACKAGE STAGE -----------------
 
 artifact-generation:
   image: alpine:3.20

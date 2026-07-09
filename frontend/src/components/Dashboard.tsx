@@ -1,18 +1,25 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import type { ComponentType, LazyExoticComponent } from 'react';
-import { AppShell, type PageKey } from './layout/AppShell';
-import { Skeleton } from './ui/skeleton';
-import { Toast, type ToastState } from './ui/toast';
-import { api } from '../services/api';
-import type { Report } from '../types/report';
-import type { PageProps } from '../types/app';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import type { ComponentType, LazyExoticComponent } from "react";
+import { AppShell, type PageKey } from "./layout/AppShell";
+import { Skeleton } from "./ui/skeleton";
+import { Toast, type ToastState } from "./ui/toast";
+import { api } from "../services/api";
+import type { Report } from "../types/report";
+import type { PageProps } from "../types/app";
 
-const DashboardPage = lazy(() => import('../pages/DashboardPage'));
-const UploadPage = lazy(() => import('../pages/UploadPage'));
-const ReportViewerPage = lazy(() => import('../pages/ReportViewerPage'));
-const SearchPage = lazy(() => import('../pages/SearchPage'));
-const HistoryPage = lazy(() => import('../pages/HistoryPage'));
-const SettingsPage = lazy(() => import('../pages/SettingsPage'));
+const DashboardPage = lazy(() => import("../pages/DashboardPage"));
+const UploadPage = lazy(() => import("../pages/UploadPage"));
+const ReportViewerPage = lazy(() => import("../pages/ReportViewerPage"));
+const SearchPage = lazy(() => import("../pages/SearchPage"));
+const HistoryPage = lazy(() => import("../pages/HistoryPage"));
+const SettingsPage = lazy(() => import("../pages/SettingsPage"));
 
 type Props = {
   dark: boolean;
@@ -22,32 +29,38 @@ type Props = {
 
 const pageMeta: Record<PageKey, { title: string; subtitle: string }> = {
   dashboard: {
-    title: 'Clinical Intelligence Dashboard',
-    subtitle: 'Offline report processing, risk triage, and local patient records.',
+    title: "Clinical Intelligence Dashboard",
+    subtitle:
+      "Offline report processing, risk triage, and local patient records.",
   },
   upload: {
-    title: 'Upload Medical Report',
-    subtitle: 'Drag, drop, preview, and process blood reports, prescriptions, or ECG files.',
+    title: "Upload Medical Report",
+    subtitle:
+      "Drag, drop, preview, and process blood reports, prescriptions, or ECG files.",
   },
   viewer: {
-    title: 'Report Viewer',
-    subtitle: 'Review original OCR text beside structured clinical JSON.',
+    title: "Report Viewer",
+    subtitle: "Review original OCR text beside structured clinical JSON.",
   },
   search: {
-    title: 'Search Records',
-    subtitle: 'Filter, sort, and inspect locally stored report extractions.',
+    title: "Search Records",
+    subtitle: "Filter, sort, and inspect locally stored report extractions.",
   },
   history: {
-    title: 'Processing History',
-    subtitle: 'Trace every offline extraction in a clean clinical timeline.',
+    title: "Processing History",
+    subtitle: "Trace every offline extraction in a clean clinical timeline.",
   },
   settings: {
-    title: 'Settings',
-    subtitle: 'Manage profile, theme, model path, offline status, and database controls.',
+    title: "Settings",
+    subtitle:
+      "Manage profile, theme, model path, offline status, and database controls.",
   },
 };
 
-const pageComponents: Record<PageKey, LazyExoticComponent<ComponentType<PageProps>>> = {
+const pageComponents: Record<
+  PageKey,
+  LazyExoticComponent<ComponentType<PageProps>>
+> = {
   dashboard: DashboardPage,
   upload: UploadPage,
   viewer: ReportViewerPage,
@@ -57,28 +70,34 @@ const pageComponents: Record<PageKey, LazyExoticComponent<ComponentType<PageProp
 };
 
 export function Dashboard({ dark, setDark, onLogout }: Props) {
-  const [page, setPage] = useState<PageKey>('dashboard');
+  const [page, setPage] = useState<PageKey>("dashboard");
   const [reports, setReports] = useState<Report[]>([]);
   const [selected, setSelected] = useState<Report | null>(null);
-  const [query, setQuery] = useState('');
-  const [manualText, setManualText] = useState('');
+  const [query, setQuery] = useState("");
+  const [manualText, setManualText] = useState("");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [previewUrl, setPreviewUrl] = useState('');
+  const [previewUrl, setPreviewUrl] = useState("");
   const [toast, setToast] = useState<ToastState>(null);
 
-  const refresh = useCallback(async (search = query) => {
-    const items = await api.listReports(search);
-    setReports(items);
-    setSelected((current) => {
-      if (current && items.some((report) => report.id === current.id)) return current;
-      return items[0] ?? null;
-    });
-  }, [query]);
+  const refresh = useCallback(
+    async (search = query) => {
+      const items = await api.listReports(search);
+      setReports(items);
+      setSelected((current) => {
+        if (current && items.some((report) => report.id === current.id))
+          return current;
+        return items[0] ?? null;
+      });
+    },
+    [query],
+  );
 
   useEffect(() => {
-    refresh().catch((err) => setError(err instanceof Error ? err.message : 'Unable to load reports'));
+    refresh().catch((err) =>
+      setError(err instanceof Error ? err.message : "Unable to load reports"),
+    );
   }, [refresh]);
 
   useEffect(() => {
@@ -87,48 +106,65 @@ export function Dashboard({ dark, setDark, onLogout }: Props) {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  const handleUpload = useCallback(async (file: File) => {
-    setBusy(true);
-    setError('');
-    setUploadProgress(14);
-    setPreviewUrl(file.type.startsWith('image/') ? URL.createObjectURL(file) : '');
-    const timer = window.setInterval(() => setUploadProgress((value) => Math.min(value + 18, 92)), 280);
-    try {
-      const report = await api.uploadReport(file);
-      await refresh();
-      setSelected(report);
-      setPage('viewer');
-      setUploadProgress(100);
-      setToast({ tone: 'success', message: 'Report processed locally and saved to SQLite.' });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Upload failed';
-      setError(message);
-      setToast({ tone: 'error', message });
-    } finally {
-      window.clearInterval(timer);
-      setBusy(false);
-      window.setTimeout(() => setUploadProgress(0), 1000);
-    }
-  }, [refresh]);
+  const handleUpload = useCallback(
+    async (file: File) => {
+      setBusy(true);
+      setError("");
+      setUploadProgress(14);
+      setPreviewUrl(
+        file.type.startsWith("image/") ? URL.createObjectURL(file) : "",
+      );
+      const timer = window.setInterval(
+        () => setUploadProgress((value) => Math.min(value + 18, 92)),
+        280,
+      );
+      try {
+        const report = await api.uploadReport(file);
+        await refresh();
+        setSelected(report);
+        setPage("viewer");
+        setUploadProgress(100);
+        setToast({
+          tone: "success",
+          message: "Report processed locally and saved to SQLite.",
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Upload failed";
+        setError(message);
+        setToast({ tone: "error", message });
+      } finally {
+        window.clearInterval(timer);
+        setBusy(false);
+        window.setTimeout(() => setUploadProgress(0), 1000);
+      }
+    },
+    [refresh],
+  );
 
   const ingestText = useCallback(async () => {
     if (!manualText.trim()) return;
     setBusy(true);
-    setError('');
+    setError("");
     setUploadProgress(22);
-    const timer = window.setInterval(() => setUploadProgress((value) => Math.min(value + 20, 92)), 240);
+    const timer = window.setInterval(
+      () => setUploadProgress((value) => Math.min(value + 20, 92)),
+      240,
+    );
     try {
       const report = await api.ingestText(manualText);
       await refresh();
-      setManualText('');
+      setManualText("");
       setSelected(report);
-      setPage('viewer');
+      setPage("viewer");
       setUploadProgress(100);
-      setToast({ tone: 'success', message: 'Text extracted into structured JSON.' });
+      setToast({
+        tone: "success",
+        message: "Text extracted into structured JSON.",
+      });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Extraction failed';
+      const message = err instanceof Error ? err.message : "Extraction failed";
       setError(message);
-      setToast({ tone: 'error', message });
+      setToast({ tone: "error", message });
     } finally {
       window.clearInterval(timer);
       setBusy(false);
@@ -155,7 +191,19 @@ export function Dashboard({ dark, setDark, onLogout }: Props) {
       onIngestText: ingestText,
       onRefresh: refresh,
     }),
-    [reports, selected, query, manualText, busy, error, uploadProgress, previewUrl, handleUpload, ingestText, refresh],
+    [
+      reports,
+      selected,
+      query,
+      manualText,
+      busy,
+      error,
+      uploadProgress,
+      previewUrl,
+      handleUpload,
+      ingestText,
+      refresh,
+    ],
   );
 
   return (
