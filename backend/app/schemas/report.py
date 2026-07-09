@@ -36,6 +36,5 @@ class ReportResponse(BaseModel):
     processed_at: datetime | None = None
 
 
-
 class ReportListResponse(BaseModel):
     reports: list[ReportResponse]
