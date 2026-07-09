@@ -1,5 +1,6 @@
 import logging
 from typing import Any
+
 from app.services.llm import LocalLLMExtractor
 
 logger = logging.getLogger(__name__)
@@ -36,24 +37,23 @@ class ClinicalSummaryGenerator:
             return ["All evaluated parameters are within normal reference ranges."]
 
         results_str = ", ".join([f"{p['name']}: {p['value']} ({p['status']})" for p in abnormal])
-        prompt = (
-            "You are a medical assistant summarizing clinical lab results.\n"
-            f"Generate a concise clinical summary as 2-4 short bullet points for these abnormal findings: {results_str}.\n"
-            "Format the output strictly as a list of bullet points, one per line. Do not include any greeting or conversational text.\n"
+        prompt = "You are a medical assistant summarizing clinical lab results.\n"(
+            "Generate a concise clinical summary as 2-4 short bullet "
+            f"points for these abnormal findings: {results_str}.\n"
+            "Format the output strictly as a list of bullet points, "
+            "one per line. Do not include any greeting or "
+            "conversational text.\n"
             "Summary:"
         )
 
         try:
             # Reusing the local LLM client logic
             from llama_cpp import Llama
+
             llm = Llama(model_path=str(self.llm.model_path), n_ctx=2048, n_threads=4, verbose=False)
             output = llm(prompt, max_tokens=256, temperature=0.1, stop=["\n\n"])
             text = output["choices"][0]["text"].strip()  # type: ignore
-            bullets = [
-                line.lstrip("-*• ").strip()
-                for line in text.split("\n")
-                if line.strip()
-            ]
+            bullets = [line.lstrip("-*• ").strip() for line in text.split("\n") if line.strip()]
             return [b for b in bullets if b]
         except Exception as exc:
             logger.warning(f"Failed to generate summary with local LLM: {exc}")

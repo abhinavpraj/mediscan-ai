@@ -1,6 +1,6 @@
 import sqlite3
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 
 from app.core.config import settings
 
@@ -42,11 +42,8 @@ def initialize_database() -> None:
             ("processed_at", "TEXT"),
         ]
         for name, col_type in new_cols:
-            try:
+            with suppress(sqlite3.OperationalError):
                 connection.execute(f"ALTER TABLE reports ADD COLUMN {name} {col_type}")
-            except sqlite3.OperationalError:
-                # Column already exists
-                pass
 
 
 @contextmanager

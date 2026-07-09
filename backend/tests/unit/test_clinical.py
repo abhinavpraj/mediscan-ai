@@ -1,6 +1,6 @@
-from app.services.risk_engine import ClinicalRiskEngine
 from app.services.clinical_summary import ClinicalSummaryGenerator
 from app.services.report_parser import MedicalReportParser
+from app.services.risk_engine import ClinicalRiskEngine
 
 
 def test_report_parser() -> None:
@@ -31,7 +31,7 @@ def test_risk_engine_normal() -> None:
 
 def test_risk_engine_abnormal() -> None:
     engine = ClinicalRiskEngine()
-    
+
     # Low Hb and high glucose
     evals1 = engine.evaluate_all(hb=10.0, glucose=110.0, cholesterol=180.0, bp="115/75")
     assert evals1["overall_risk"] == "High"  # Glucose status High makes it High
@@ -61,7 +61,7 @@ def test_clinical_summary_generation() -> None:
     # Abnormal case
     evals_abnormal = engine.evaluate_all(hb=10.2, glucose=162.0, cholesterol=250.0, bp="145/95")
     res_abnormal = summary_gen.generate(evals_abnormal, "multiple abnormal parameters")
-    
+
     assert res_abnormal["overall_risk"] == "Critical"
     assert len(res_abnormal["clinical_summary"]) > 1
     # Check that recommendations for hb, glucose, cholesterol, and BP are mapped

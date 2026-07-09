@@ -20,4 +20,3 @@ class Report:
     parameters: list[dict[str, Any]] = None
     abnormal_parameters: list[dict[str, Any]] = None
     processed_at: datetime | None = None
-
