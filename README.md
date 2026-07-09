@@ -1,8 +1,8 @@
 # 🏥 MediScan AI
 
-> **Offline-First, CPU-Optimized AI for Medical Report Structuring**
+> **Offline-First, CPU-Optimized AI for Medical Report Structuring & Clinical Risk Analysis**
 
-![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/Python-3.11+-green.svg)
 ![React](https://img.shields.io/badge/React-19-blue.svg)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Latest-success.svg)
@@ -12,318 +12,202 @@
 
 ---
 
-# 📖 Overview
+## 📖 Overview
 
-MediScan AI is an **offline-first medical document intelligence system** that converts unstructured medical reports into structured healthcare records using **CPU-optimized AI models**.
+MediScan AI is an **offline-first medical document intelligence system** that converts unstructured medical reports into structured healthcare records and automatically assesses patient clinical risk using **CPU-optimized AI models**.
 
 The application processes **blood reports, prescriptions, and ECG reports** entirely on the user's device without requiring an internet connection or cloud-based APIs.
 
-Designed for **rural hospitals, clinics, diagnostic centers, and medical camps**, MediScan AI enables healthcare professionals to digitize patient records while preserving privacy and ensuring reliable offline operation.
+Designed for **rural hospitals, clinics, diagnostic centers, and medical camps**, MediScan AI enables healthcare professionals to digitize patient records while preserving absolute patient privacy and ensuring reliable offline operations.
 
 ---
 
-# ❗ Problem Statement
+## 📸 Screenshots
 
-Medical reports are often shared as scanned PDFs or images.
-
-Healthcare professionals spend valuable time manually reading reports and entering patient data into digital systems.
-
-Most AI-powered medical document solutions require cloud services, making them unsuitable for locations with unreliable internet connectivity.
-
-There is a need for an offline AI solution capable of automatically extracting structured medical information while maintaining complete patient privacy.
+| Dashboard Page | Report Viewer |
+|----------------|---------------|
+| ![Dashboard Placehoder](https://via.placeholder.com/600x350.png?text=MediScan+AI+Dashboard+Mockup) | ![Report Viewer Placeholder](https://via.placeholder.com/600x350.png?text=MediScan+AI+Report+Viewer+Mockup) |
 
 ---
 
-# 💡 Solution
+## ✨ Features
 
-MediScan AI uses:
-
-- **Tesseract OCR** for text extraction
-- **CPU-optimized Small Language Models (SLMs)** running locally via **llama.cpp**
-- **SQLite** for local storage
-
-The application converts medical reports into structured JSON that can be searched, analyzed, and stored locally.
-
-No internet connection is required.
+- **📄 Document Upload**: Easily upload blood reports, prescriptions, and ECG images/PDFs.
+- **🔍 Offline OCR**: Extract raw text locally using Tesseract OCR.
+- **🛡️ Clinical Risk Engine**: Automatically evaluate key metrics (Hemoglobin, Glucose, Cholesterol, Blood Pressure) against age/gender-adjusted reference ranges to flag Low, Moderate, High, or Critical statuses.
+- **🧠 Clinical Summary Generator**: Generate concise natural-language overviews (max 5 bullet points) and suggested follow-ups (using a local llama.cpp GGUF model if available, otherwise falling back programmatically).
+- **💾 Local SQLite Database**: Save and fetch structured history and patient search queries.
+- **🔒 Privacy-First Design**: Patient records never leave the local machine.
+- **⚡ CPU-Only Inference**: Run advanced SLM (Small Language Models) locally without requiring dedicated GPUs.
 
 ---
 
-# ✨ Features
-
-- 📄 Upload Blood Reports
-- 💊 Upload Prescriptions
-- ❤️ Upload ECG Reports
-- 🔍 Offline OCR Processing
-- 🤖 Local AI Medical Information Extraction
-- 📊 Automatic JSON Generation
-- 💾 SQLite Local Database
-- 🔎 Search Patient Records
-- 🔒 Privacy-First Design
-- ⚡ CPU-Only Inference
-- 🌐 Fully Offline Operation
-
----
-
-# 🧠 AI Workflow
+## 🏗️ Architecture
 
 ```
-Medical Report
-(Image / PDF)
-
+┌─────────────────┐       ┌───────────────┐       ┌────────────────────────┐
+│ Medical Report  │ ─────>│ Tesseract OCR │ ─────>│   Text Normalization   │
+│  (Image/PDF)    │       └───────────────┘       └────────────────────────┘
+└─────────────────┘                                           │
+                                                              ▼
+┌─────────────────┐       ┌───────────────┐       ┌────────────────────────┐
+│ SQLite Database │ <─────│  Risk Engine  │ <─────│ Local Small Lang Model │
+│   (Local DB)    │       │  & Summarizer │       │ (llama.cpp / Fallback) │
+└─────────────────┘       └───────────────┘       └────────────────────────┘
         │
-
         ▼
-
-Tesseract OCR
-
-        │
-
-        ▼
-
-Text Cleaning & Normalization
-
-        │
-
-        ▼
-
-Local Small Language Model
-(Phi-3 Mini / Qwen2.5)
-
-        │
-
-        ▼
-
-Medical Entity Extraction
-
-        │
-
-        ▼
-
-Structured JSON
-
-        │
-
-        ▼
-
-SQLite Database
-
-        │
-
-        ▼
-
-Offline Search Dashboard
+┌─────────────────┐
+│ React Dashboard │
+└─────────────────┘
 ```
+
+The pipeline ingests files, converts them to text via OCR, executes a local rule engine alongside local AI model text completion, parses structured properties, writes them to SQLite, and updates the React dashboard with real-time risk distribution metrics.
 
 ---
 
-# 🏗️ Tech Stack
+## 🛠️ Tech Stack
 
 | Component | Technology |
 |------------|------------|
-| Frontend | React + TypeScript + Vite |
-| Backend | FastAPI(Python) |
+| Frontend | React + TypeScript + Vite + TailwindCSS |
+| Backend | FastAPI (Python 3.11+) |
 | Database | SQLite |
 | OCR | Tesseract OCR |
-| AI Runtime | llama.cpp |
-| Language Model | Qwen2.5-3B-Instruct GGUF |
-| AI Inference Runtime | llama.cpp (CPU-only) |
-| PDF Processing | PyMuPDF |
-| Image Processing | OpenCV |
+| AI Runtime | llama.cpp (CPU-only) |
+| Language Model | Qwen2.5-3B-Instruct GGUF / Phi-3 Mini |
 | Containerization | Docker |
 
 ---
 
-# 📁 Project Structure
+## 📁 Project Structure
 
-```
+```text
 mediscan-ai/
 │
-├── backend/
+├── backend/              FastAPI application, database schemas, and AI controllers
 │   ├── app/
-│   ├── database/
-│   ├── models/
-│   ├── services/
-│   └── main.py
+│   │   ├── api/          FastAPI routers and API endpoints
+│   │   ├── core/         System environment and configurations
+│   │   ├── db/           SQLite database scripts and schema definitions
+│   │   ├── models/       Dataclasses for reports
+│   │   ├── repositories/ Data access layers for SQLite
+│   │   ├── schemas/      Pydantic request/response validation schemas
+│   │   └── services/     OCR, Risk Engine, Summary, and LLM services
+│   └── tests/            Unit and integration Pytest cases
 │
-├── frontend/
+├── frontend/             React SPA Dashboard and Report Viewer
 │   ├── src/
-│   ├── pages/
-│   ├── components/
-│   └── assets/
+│   │   ├── components/   Shared UI widgets, card components, and layouts
+│   │   ├── pages/        Dashboard, History, and Report Viewer pages
+│   │   └── types/        TypeScript type definitions
+│   └── vercel.json       Routing fallback config for Vercel deployment
 │
-├── docs/
-├── models/
-├── sample_reports/
-│
-├── README.md
-├── LICENSE
-├── CONTRIBUTING.md
-├── CHANGELOG.md
-└── .gitlab-ci.yml
+├── docs/                 API specification, workflow charts, and audit files
+├── models/               GGUF AI model target path
+├── README.md             Getting started and deployment instructions
+├── LICENSE               MIT License
+└── docker-compose.yml    Multi-container local deployment configuration
 ```
 
 ---
 
-# 📊 Example Output
+## ⚙️ Environment Variables
 
-```json
-{
-  "patient_name": "John Doe",
-  "age": 45,
-  "gender": "Male",
-  "report_type": "Blood Report",
-  "hemoglobin": {
-    "value": 11.2,
-    "unit": "g/dL",
-    "status": "Low"
-  },
-  "glucose": {
-    "value": 105,
-    "status": "Normal"
-  },
-  "cholesterol": {
-    "ldl": 165,
-    "hdl": 36,
-    "status": "High"
-  },
-  "blood_pressure": "140/90",
-  "risk_flags": [
-    "Possible Anemia",
-    "High Cholesterol"
-  ],
-  "recommendation": "Consult a physician for further evaluation."
-}
-```
+Copy `.env.example` in the root folder to configure local environments:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MEDISCAN_APP_NAME` | Display name of the application | `MediScan AI` |
+| `MEDISCAN_DATABASE_PATH` | Path to SQLite db file | `backend/database/mediscan.sqlite3` |
+| `MEDISCAN_UPLOAD_DIR` | Directory for uploaded report uploads | `backend/database/uploads` |
+| `MEDISCAN_MODEL_PATH` | Path to GGUF model file | `models/phi-3-mini.gguf` |
+| `MEDISCAN_JWT_SECRET` | Secret key for JWT session tokens | `change-this-local-secret` |
+| `MEDISCAN_ADMIN_USERNAME` | Login username | `admin` |
+| `MEDISCAN_ADMIN_PASSWORD` | Login password | `mediscan-local` |
+| `MEDISCAN_CORS_ORIGINS` | Allowed CORS endpoints (comma-separated) | `http://localhost:5173` |
+| `VITE_API_BASE` | Frontend API base connection URL | `http://localhost:8000/api` |
 
 ---
 
-# 🎯 Hackathon Requirements
+## 🚀 Getting Started
 
-✅ CPU-First AI
-
-- Runs entirely on CPU
-- No GPU or CUDA required
-
-✅ Offline-First
-
-- No internet connection required
-- No cloud inference
-- No external AI APIs
-
-✅ Local AI Processing
-
-- OCR runs locally
-- AI inference runs locally
-- Patient data never leaves the device
-
-✅ Structured Data Extraction
-
-Converts unstructured medical documents into structured JSON.
-
----
-
-# 🚀 Getting Started
-
-## Clone Repository
-
+### 1. Clone the Repository
 ```bash
-git clone https://code.swecha.org/venika_2537/mediscan-ai
-
+git clone https://github.com/abhinavpraj/mediscan-ai.git
 cd mediscan-ai
 ```
 
----
+### 2. Run Locally (Development)
 
-## Running the Application
-
-### Backend
-
+#### Backend Setup
 ```bash
 cd backend
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+*The FastAPI swagger docs will be available at `http://localhost:8000/docs`.*
 
-### Frontend
-
+#### Frontend Setup
 ```bash
-cd frontend
+cd ../frontend
 npm install
 npm run dev
 ```
+*Open `http://localhost:5173` in your browser.*
 
-Open `http://localhost:5173`.
-
-### Docker
-
+### 3. Run with Docker
 ```bash
 docker compose up --build
 ```
-
-- Backend: `http://localhost:8000`
-- Frontend: `http://localhost:5173`
-
----
-
-## Default Local Login
-
-The demo uses local password authentication only.
-
-- **Username:** `admin`
-- **Password:** `mediscan-local`
-
-Change these with `MEDISCAN_ADMIN_USERNAME` and `MEDISCAN_ADMIN_PASSWORD`.
+- Backend API: `http://localhost:8000`
+- Frontend Dashboard: `http://localhost:5173`
 
 ---
 
-## Repository Layout
+## ☁️ Deployment Guide
 
-```text
-backend/              FastAPI application, OCR, extraction, SQLite
-frontend/             React, TypeScript, Vite, Tailwind dashboard
-docs/                 Architecture, API, database, workflow, audit docs
-models/               Local GGUF model directory
-sample_reports/       Offline sample report text
-sample_outputs/       Example structured JSON
-scripts/              CI helper scripts
-```
+### Backend: Render (Docker Container Web Service)
+Since Tesseract OCR requires system packages, deploying the backend as a Docker Container is recommended.
+1. Sign in to [Render](https://render.com) and create a **New Web Service**.
+2. Connect your GitHub repository.
+3. Choose the **Docker** runtime environment.
+4. Add the following Environment Variables in the Render Dashboard:
+   - `MEDISCAN_JWT_SECRET`: (Secure random key)
+   - `MEDISCAN_CORS_ORIGINS`: `https://your-frontend-vercel-url.vercel.app`
+   - `MEDISCAN_ADMIN_PASSWORD`: (Production login password)
+5. Deploy. Render will automatically build the `Dockerfile` and expose the API.
 
----
-
-## Validation
-
-```bash
-cd backend
-pytest
-ruff check .
-black --check .
-mypy app
-
-cd ../frontend
-npm run lint
-npm run typecheck
-npm run build
-```
+### Frontend: Vercel
+Vercel is ideal for static React assets.
+1. Sign in to [Vercel](https://vercel.com) and click **Add New Project**.
+2. Import the `mediscan-ai` repository.
+3. Configure the directory settings:
+   - **Framework Preset**: `Vite`
+   - **Root Directory**: `frontend`
+4. Add the Environment Variable:
+   - `VITE_API_BASE`: `https://your-backend-render-url.onrender.com/api`
+5. Click **Deploy**. Vercel will build the frontend assets and host them with SPA routing configured by [vercel.json](file:///Users/abhinavprajapati/Swecha/mediscan-ai/frontend/vercel.json).
 
 ---
 
-# 👥 Team
+## 🔮 Future Improvements
 
-| Name | Role |
-|------|------|
-| Venika Popuri | Member |
-| Abhinav Prajapati | Member |
-
----
-
-# 📜 License
-
-This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**.
+- [ ] **Multi-Language OCR**: Support OCR parsing for Telugu, Hindi, and regional languages.
+- [ ] **PDF Export**: Generate structured, printable PDF summary cards for patients to carry.
+- [ ] **Interactive Chat**: Let medical practitioners ask questions about report history.
+- [ ] **Offline PWA support**: Install the dashboard as a progressive web app on smartphones.
 
 ---
 
-## ⭐ Built for the CPU-First Hackathon
+## 👥 Team Members
 
-**"Making Medical AI Accessible Anywhere — Even Without the Internet."**
+- **Venika Popuri** - Venika Popuri
+- **Abhinav Prajapati** - Abhinav Prajapati
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
