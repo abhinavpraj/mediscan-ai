@@ -28,6 +28,13 @@ class ReportResponse(BaseModel):
     structured_json: dict[str, Any]
     source_filename: str
     created_at: datetime
+    overall_risk: str | None = None
+    clinical_summary: list[str] = []
+    recommendations: list[str] = []
+    parameters: list[dict[str, Any]] = []
+    abnormal_parameters: list[dict[str, Any]] = []
+    processed_at: datetime | None = None
+
 
 
 class ReportListResponse(BaseModel):

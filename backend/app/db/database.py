@@ -14,7 +14,13 @@ CREATE TABLE IF NOT EXISTS reports (
     raw_text TEXT NOT NULL,
     structured_json TEXT NOT NULL,
     source_filename TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    overall_risk TEXT,
+    clinical_summary TEXT,
+    recommendations TEXT,
+    parameters TEXT,
+    abnormal_parameters TEXT,
+    processed_at TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_reports_patient_name ON reports(patient_name);
 CREATE INDEX IF NOT EXISTS idx_reports_type ON reports(report_type);
@@ -26,6 +32,21 @@ def initialize_database() -> None:
     settings.upload_dir.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(settings.database_path) as connection:
         connection.executescript(SCHEMA)
+        # Migrate existing databases to add columns if they are missing
+        new_cols = [
+            ("overall_risk", "TEXT"),
+            ("clinical_summary", "TEXT"),
+            ("recommendations", "TEXT"),
+            ("parameters", "TEXT"),
+            ("abnormal_parameters", "TEXT"),
+            ("processed_at", "TEXT"),
+        ]
+        for name, col_type in new_cols:
+            try:
+                connection.execute(f"ALTER TABLE reports ADD COLUMN {name} {col_type}")
+            except sqlite3.OperationalError:
+                # Column already exists
+                pass
 
 
 @contextmanager

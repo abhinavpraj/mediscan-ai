@@ -14,3 +14,10 @@ class Report:
     structured_json: dict[str, Any]
     source_filename: str
     created_at: datetime
+    overall_risk: str | None = None
+    clinical_summary: list[str] = None
+    recommendations: list[str] = None
+    parameters: list[dict[str, Any]] = None
+    abnormal_parameters: list[dict[str, Any]] = None
+    processed_at: datetime | None = None
+

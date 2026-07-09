@@ -37,21 +37,21 @@ export default function DashboardPage({
   setSelected,
   setPage,
 }: PageProps) {
+  const highRisk = reports.filter(
+    (report) => (report.overall_risk || report.structured_json.overall_risk) === "High"
+  );
   const critical = reports.filter(
-    (report) => report.structured_json.risk_flags.length > 0,
+    (report) => (report.overall_risk || report.structured_json.overall_risk) === "Critical"
   );
   const patients = new Set(reports.map((report) => report.patient_name)).size;
-  const today = reports.filter(
-    (report) =>
-      new Date(report.created_at).toDateString() === new Date().toDateString(),
-  ).length;
   const chartData = buildChartData(reports.length);
-  const typeData = ["Blood Report", "Prescription", "ECG Report"].map(
+  const riskData = ["Low", "Moderate", "High", "Critical"].map(
     (name) => ({
       name,
       value:
-        reports.filter((report) => report.report_type === name).length ||
-        (reports.length ? 0 : 1),
+        reports.filter(
+          (report) => (report.overall_risk || report.structured_json.overall_risk || "Low") === name
+        ).length || (reports.length ? 0 : 1),
     }),
   );
 
@@ -72,16 +72,16 @@ export default function DashboardPage({
           tone="cyan"
         />
         <StatCard
-          label="Today's Uploads"
-          value={today}
-          detail="CPU-only processing"
-          icon={UploadCloud}
-          tone="green"
+          label="High Risk Reports"
+          value={highRisk.length}
+          detail="Requires monitoring"
+          icon={AlertTriangle}
+          tone="amber"
         />
         <StatCard
-          label="Critical Cases"
+          label="Critical Reports"
           value={critical.length}
-          detail="Reports with risk flags"
+          detail="Requires urgent review"
           icon={AlertTriangle}
           tone="red"
         />
@@ -129,9 +129,9 @@ export default function DashboardPage({
 
         <Card>
           <CardHeader>
-            <CardTitle>Report Mix</CardTitle>
+            <CardTitle>Risk Distribution</CardTitle>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              Document types handled by the local pipeline.
+              Breakdown of patient clinical risk categories.
             </p>
           </CardHeader>
           <CardContent>
@@ -139,16 +139,16 @@ export default function DashboardPage({
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={typeData}
+                    data={riskData}
                     dataKey="value"
                     innerRadius={58}
                     outerRadius={88}
                     paddingAngle={5}
                   >
-                    {typeData.map((entry, index) => (
+                    {riskData.map((entry, index) => (
                       <Cell
                         key={entry.name}
-                        fill={["#2563EB", "#06B6D4", "#10B981"][index]}
+                        fill={["#10B981", "#F59E0B", "#EF4444", "#B91C1C"][index]}
                       />
                     ))}
                   </Pie>
@@ -157,11 +157,11 @@ export default function DashboardPage({
               </ResponsiveContainer>
             </div>
             <div className="space-y-3">
-              {typeData.map((item, index) => (
+              {riskData.map((item, index) => (
                 <div key={item.name}>
                   <div className="mb-1 flex justify-between text-sm">
                     <span className="text-slate-600 dark:text-slate-300">
-                      {item.name}
+                      {item.name} Risk
                     </span>
                     <span className="font-semibold">{item.value}</span>
                   </div>
@@ -169,7 +169,7 @@ export default function DashboardPage({
                     value={
                       reports.length
                         ? (item.value / reports.length) * 100
-                        : 34 + index * 12
+                        : 25 + index * 15
                     }
                   />
                 </div>
@@ -231,14 +231,16 @@ export default function DashboardPage({
                       <td className="px-5 py-4">
                         <Badge
                           tone={
-                            report.structured_json.risk_flags.length
+                            (report.overall_risk || report.structured_json.overall_risk) === "Critical"
                               ? "red"
+                              : (report.overall_risk || report.structured_json.overall_risk) === "High"
+                              ? "red"
+                              : (report.overall_risk || report.structured_json.overall_risk) === "Moderate"
+                              ? "amber"
                               : "green"
                           }
                         >
-                          {report.structured_json.risk_flags.length
-                            ? "Needs review"
-                            : "Normal"}
+                          {(report.overall_risk || report.structured_json.overall_risk || "Low")} Risk
                         </Badge>
                       </td>
                       <td className="px-5 py-4 text-slate-500">

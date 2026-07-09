@@ -10,6 +10,11 @@ export type StructuredReport = {
   medications: string[];
   risk_flags: string[];
   recommendation: string;
+  overall_risk?: string | null;
+  clinical_summary?: string[];
+  recommendations?: string[];
+  parameters?: any[];
+  abnormal_parameters?: any[];
 };
 
 export type Report = {
@@ -22,4 +27,11 @@ export type Report = {
   structured_json: StructuredReport;
   source_filename: string;
   created_at: string;
+  overall_risk?: string | null;
+  clinical_summary?: string[];
+  recommendations?: string[];
+  parameters?: any[];
+  abnormal_parameters?: any[];
+  processed_at?: string | null;
 };
+
