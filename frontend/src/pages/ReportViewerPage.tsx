@@ -19,6 +19,7 @@ import {
 import { EmptyState } from "../components/ui/empty-state";
 import { formatDate } from "../lib/utils";
 import type { PageProps } from "../types/app";
+import type { Parameter } from "../types/report";
 
 export default function ReportViewerPage({ selected, setPage }: PageProps) {
   if (!selected) {
@@ -42,25 +43,16 @@ export default function ReportViewerPage({ selected, setPage }: PageProps) {
 
   const risks = selected.structured_json.risk_flags;
 
-  const getIndicator = (status: string) => {
-    switch (status) {
-      case "Normal": return "🟢";
-      case "Low": return "🟡";
-      case "High": return "🟠";
-      case "Critical": return "🔴";
-      default: return "🟢";
-    }
-  };
-
   const getParamStatus = (name: string) => {
-    const params = selected.structured_json.parameters || (selected as any).parameters || [];
-    const param = params.find((p: any) => p.name.toLowerCase() === name.toLowerCase());
+    const params = selected.structured_json.parameters || selected.parameters || [];
+    const param = params.find((p: Parameter) => p.name.toLowerCase() === name.toLowerCase());
     return param ? param.status : "Normal";
   };
 
   const overallRisk = selected.overall_risk || selected.structured_json.overall_risk || "Low";
   const clinicalSummary = selected.clinical_summary || selected.structured_json.clinical_summary || [];
   const recommendations = selected.recommendations || selected.structured_json.recommendations || [];
+
 
   return (
     <div className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">

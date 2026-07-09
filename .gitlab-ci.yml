@@ -1,6 +1,9 @@
 stages:
   - test
   - lint
+  - format
+  - type_check
+  - coverage
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
@@ -8,7 +11,10 @@ variables:
 
 default:
   image: nikolaik/python-nodejs:python3.11-nodejs22
-
+  tags:
+    - python
+    - docker
+    - linux
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
@@ -30,12 +36,7 @@ test:
   stage: test
   script:
     - source .venv/bin/activate
-    - |
-      if command -v pytest >/dev/null 2>&1; then
-        pytest
-      else
-        echo "pytest is not installed, skipping backend tests."
-      fi
+    - pytest
     - cd frontend
     - |
       if [ -f package.json ] && grep -q '"test":' package.json; then
@@ -48,16 +49,43 @@ lint:
   stage: lint
   script:
     - source .venv/bin/activate
-    - |
-      if command -v ruff >/dev/null 2>&1; then
-        ruff check .
-      else
-        echo "ruff is not installed, skipping backend lint."
-      fi
+    - ruff check .
+    - cd frontend
+    - npm run lint
+
+format:
+  stage: format
+  script:
+    - source .venv/bin/activate
+    - ruff format --check .
     - cd frontend
     - |
-      if [ -f package.json ] && grep -q '"lint":' package.json; then
-        npm run lint
+      if [ -f package.json ] && grep -q '"format:check":' package.json; then
+        npm run format:check
       else
-        echo "No frontend lint script found, skipping."
+        echo "No frontend format:check script found, skipping."
       fi
+
+type_check:
+  stage: type_check
+  script:
+    - source .venv/bin/activate
+    - mypy backend
+    - cd frontend
+    - |
+      if [ -f package.json ] && grep -q '"type-check":' package.json; then
+        npm run type-check
+      else
+        echo "No frontend type-check script found, skipping."
+      fi
+
+coverage:
+  stage: coverage
+  script:
+    - source .venv/bin/activate
+    - pytest --cov=backend --cov-report=xml
+  artifacts:
+    name: "coverage-report"
+    paths:
+      - coverage.xml
+    expire_in: 1 week
