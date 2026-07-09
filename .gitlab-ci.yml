@@ -8,10 +8,7 @@ variables:
 
 default:
   image: nikolaik/python-nodejs:python3.11-nodejs22
-  tags:
-    - python
-    - docker
-    - linux
+
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
