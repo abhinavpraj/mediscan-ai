@@ -27,7 +27,7 @@ default:
     - pip install --upgrade pip
     - pip install -r backend/requirements.txt
     - cd frontend
-    - npm ci
+    - npm install
     - cd ..
 
 # ----------------- JOBS -----------------
