@@ -57,11 +57,7 @@ export default function SettingsPage({ reports, onRefresh }: PageProps) {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="api-base">API base</Label>
-            <Input
-              id="api-base"
-              value={API_BASE}
-              readOnly
-            />
+            <Input id="api-base" value={API_BASE} readOnly />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="model-path">Local model path</Label>
