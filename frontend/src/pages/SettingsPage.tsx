@@ -10,6 +10,7 @@ import {
 } from "../components/ui/card";
 import { Input, Label } from "../components/ui/form";
 import type { PageProps } from "../types/app";
+import { API_BASE } from "../services/api";
 
 export default function SettingsPage({ reports, onRefresh }: PageProps) {
   const dark = document.documentElement.classList.contains("dark");
@@ -58,7 +59,7 @@ export default function SettingsPage({ reports, onRefresh }: PageProps) {
             <Label htmlFor="api-base">API base</Label>
             <Input
               id="api-base"
-              value={import.meta.env.VITE_API_BASE ?? "/api"}
+              value={API_BASE}
               readOnly
             />
           </div>

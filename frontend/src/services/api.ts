@@ -1,6 +1,8 @@
 import type { Report } from "../types/report";
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "/api";
+export const API_BASE =
+  import.meta.env.VITE_API_BASE ||
+  (import.meta.env.DEV ? "/api" : "http://localhost:8000/api");
 
 export class ApiClient {
   private token = localStorage.getItem("mediscan_token") ?? "";
