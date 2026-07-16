@@ -24,7 +24,6 @@ const SettingsPage = lazy(() => import("../pages/SettingsPage"));
 type Props = {
   dark: boolean;
   setDark: (value: boolean) => void;
-  onLogout: () => void;
 };
 
 const pageMeta: Record<PageKey, { title: string; subtitle: string }> = {
@@ -69,7 +68,7 @@ const pageComponents: Record<
   settings: SettingsPage,
 };
 
-export function Dashboard({ dark, setDark, onLogout }: Props) {
+export function Dashboard({ dark, setDark }: Props) {
   const [page, setPage] = useState<PageKey>("dashboard");
   const [reports, setReports] = useState<Report[]>([]);
   const [selected, setSelected] = useState<Report | null>(null);
@@ -215,7 +214,6 @@ export function Dashboard({ dark, setDark, onLogout }: Props) {
         subtitle={pageMeta[page].subtitle}
         dark={dark}
         setDark={setDark}
-        onLogout={onLogout}
       >
         <Suspense fallback={<PageSkeleton />}>
           <CurrentPage {...props} />
