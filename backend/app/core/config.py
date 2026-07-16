@@ -11,11 +11,14 @@ class Settings(BaseSettings):
     database_path: Path = Path("backend/database/mediscan.sqlite3")
     upload_dir: Path = Path("backend/database/uploads")
     model_path: Path = Path("models/phi-3-mini.gguf")
-    jwt_secret: str = "change-this-local-secret"
-    admin_username: str = "admin"
-    admin_password: str = "mediscan-local"
-    access_token_minutes: int = 480
-    cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    cors_origins: list[str] = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5175",
+        "http://localhost:5176",
+        "http://localhost:5177",
+        "https://mediscan-ai-abhinav-p.vercel.app",
+    ]
 
     @field_validator("cors_origins", mode="before")
     @classmethod

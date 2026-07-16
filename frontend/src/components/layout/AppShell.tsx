@@ -8,7 +8,6 @@ import {
   Home,
   Menu,
   Moon,
-  PanelLeftClose,
   Search,
   Settings,
   ShieldCheck,
@@ -41,7 +40,6 @@ type Props = {
   subtitle: string;
   dark: boolean;
   setDark: (value: boolean) => void;
-  onLogout: () => void;
   children: ReactNode;
 };
 
@@ -52,7 +50,6 @@ export function AppShell({
   subtitle,
   dark,
   setDark,
-  onLogout,
   children,
 }: Props) {
   const [mobileOpen, setMobileOpen] = useMobileDrawer();
@@ -61,7 +58,7 @@ export function AppShell({
     <div className="min-h-screen overflow-x-hidden bg-[#F8FAFC] text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-100">
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.18),transparent_34%),radial-gradient(circle_at_top_right,rgba(6,182,212,0.16),transparent_28%)]" />
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-white/70 bg-white/80 p-4 shadow-xl shadow-slate-200/40 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-950/70 dark:shadow-black/20 lg:block">
-        <SidebarContent page={page} setPage={setPage} onLogout={onLogout} />
+        <SidebarContent page={page} setPage={setPage} />
       </aside>
 
       <AnimatePresence>
@@ -95,7 +92,6 @@ export function AppShell({
                   setPage(next);
                   setMobileOpen(false);
                 }}
-                onLogout={onLogout}
               />
             </motion.aside>
           </motion.div>
@@ -175,11 +171,9 @@ export function AppShell({
 function SidebarContent({
   page,
   setPage,
-  onLogout,
 }: {
   page: PageKey;
   setPage: (page: PageKey) => void;
-  onLogout: () => void;
 }) {
   return (
     <div className="flex h-full flex-col">
@@ -226,9 +220,6 @@ function SidebarContent({
             Reports, OCR text, and JSON stay on this device.
           </p>
         </div>
-        <Button variant="outline" className="w-full" onClick={onLogout}>
-          <PanelLeftClose size={16} /> Sign out
-        </Button>
       </div>
     </div>
   );
